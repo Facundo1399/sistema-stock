@@ -3,6 +3,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from config import get_db
+from database.db_errors import integrity_error_to_http
 from models.productos import Productos
 from schemas.productos import ProductoResponse, ProductoCreate, ProductoUpdate
 
@@ -37,15 +38,7 @@ def cargar_producto(producto: ProductoCreate, db: Session = Depends(get_db)):
         db.commit()
     except IntegrityError as e:
         db.rollback()
-        # distinguimos el motivo real del error para dar un mensaje útil
-        mensaje = str(e.orig).lower()
-        if "codigo" in mensaje:
-            detail = "Ya existe un producto con ese código."
-        elif "proveedor_id" in mensaje or "foreign key" in mensaje:
-            detail = "El proveedor indicado no existe."
-        else:
-            detail = "No se pudo crear el producto por un conflicto de datos."
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=detail)
+        raise integrity_error_to_http(e, contexto="un producto")
 
     db.refresh(nuevo_producto)
     return nuevo_producto
@@ -70,14 +63,7 @@ def mod_producto(
         db.commit()
     except IntegrityError as e:
         db.rollback()
-        mensaje = str(e.orig).lower()
-        if "codigo" in mensaje:
-            detail = "Ya existe un producto con ese código."
-        elif "proveedor_id" in mensaje or "foreign key" in mensaje:
-            detail = "El proveedor indicado no existe."
-        else:
-            detail = "No se pudo actualizar el producto por un conflicto de datos."
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=detail)
+        raise integrity_error_to_http(e, contexto="el producto")
 
     db.refresh(producto_mod)
     return producto_mod
@@ -102,18 +88,10 @@ def actualizar_producto_parcial(
         db.commit()
     except IntegrityError as e:
         db.rollback()
-        mensaje = str(e.orig).lower()
-        if "codigo" in mensaje:
-            detail = "Ya existe un producto con ese código."
-        elif "proveedor_id" in mensaje or "foreign key" in mensaje:
-            detail = "El proveedor indicado no existe."
-        else:
-            detail = "No se pudo actualizar el producto por un conflicto de datos."
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=detail)
+        raise integrity_error_to_http(e, contexto="el producto")
 
     db.refresh(producto_mod)
     return producto_mod
-
 
 
 @router.delete("/{producto_id}", status_code=status.HTTP_204_NO_CONTENT)

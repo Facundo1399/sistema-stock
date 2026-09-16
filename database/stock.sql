@@ -81,4 +81,23 @@ CREATE TABLE ventas_detalles(
     
     foreign key (venta_id) references ventas(id) on delete cascade,
     foreign key (producto_id) references productos(id)
-)
+);
+
+show tables;
+
+SELECT id, nombre, proveedor_id
+FROM productos
+WHERE proveedor_id IS NULL;
+
+ALTER TABLE productos
+  DROP FOREIGN KEY productos_ibfk_1;
+
+ALTER TABLE productos
+  MODIFY proveedor_id INT UNSIGNED NOT NULL;
+
+ALTER TABLE productos
+  ADD CONSTRAINT productos_ibfk_1
+    FOREIGN KEY (proveedor_id) REFERENCES proveedores(id)
+    ON DELETE RESTRICT;
+    
+SHOW CREATE TABLE productos;
