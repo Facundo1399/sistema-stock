@@ -5,18 +5,27 @@ from sqlalchemy.orm import Session
 from config import get_db
 from database.db_errors import integrity_error_to_http
 from models.productos import Productos
+from models.user import User
 from schemas.productos import ProductoResponse, ProductoCreate, ProductoUpdate
+from routes.user import check_admin, get_current_user
 
 router = APIRouter(prefix="/productos", tags=["productos"])
 
 
 @router.get("/", response_model=list[ProductoResponse])
-def listar_productos(db: Session = Depends(get_db)):
+def listar_productos(
+    db: Session = Depends(get_db),
+    _usuario: User = Depends(get_current_user),
+):
     return db.query(Productos).filter(Productos.activo.is_(True)).all()
 
 
 @router.get("/{producto_id}", response_model=ProductoResponse)
-def producto_especifico(producto_id: int, db: Session = Depends(get_db)):
+def producto_especifico(
+    producto_id: int,
+    db: Session = Depends(get_db),
+    _usuario: User = Depends(get_current_user),
+):
     especifico = (
         db.query(Productos)
         .filter(Productos.id == producto_id, Productos.activo.is_(True))
@@ -30,7 +39,11 @@ def producto_especifico(producto_id: int, db: Session = Depends(get_db)):
 
 
 @router.post("/", response_model=ProductoResponse, status_code=status.HTTP_201_CREATED)
-def cargar_producto(producto: ProductoCreate, db: Session = Depends(get_db)):
+def cargar_producto(
+    producto: ProductoCreate,
+    db: Session = Depends(get_db),
+    _admin: User = Depends(check_admin),
+):
     nuevo_producto = Productos(**producto.model_dump())
 
     db.add(nuevo_producto)
@@ -49,6 +62,7 @@ def mod_producto(
     producto_id: int,
     producto: ProductoCreate,
     db: Session = Depends(get_db),
+    _admin: User = Depends(check_admin),
 ):
     producto_mod = db.query(Productos).filter(Productos.id == producto_id).first()
 
@@ -74,6 +88,7 @@ def actualizar_producto_parcial(
     producto_id: int,
     producto: ProductoUpdate,
     db: Session = Depends(get_db),
+    _admin: User = Depends(check_admin),
 ):
     producto_mod = db.query(Productos).filter(Productos.id == producto_id).first()
 
@@ -95,7 +110,11 @@ def actualizar_producto_parcial(
 
 
 @router.delete("/{producto_id}", status_code=status.HTTP_204_NO_CONTENT)
-def borrar_producto(producto_id: int, db: Session = Depends(get_db)):
+def borrar_producto(
+    producto_id: int,
+    db: Session = Depends(get_db),
+    _admin: User = Depends(check_admin),
+):
     producto_borrar = db.query(Productos).filter(Productos.id == producto_id).first()
 
     if producto_borrar is None:
