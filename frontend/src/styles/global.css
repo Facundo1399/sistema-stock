@@ -1,0 +1,4 @@
+.color-de-fondo {
+    background: #2A7B9B;
+    background: linear-gradient(90deg, rgba(42, 123, 155, 1) 0%, rgba(53, 46, 179, 1) 50%, rgba(96, 90, 219, 1) 100%);
+}
