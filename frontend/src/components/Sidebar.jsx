@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { NavLink } from "react-router-dom";
 import styles from "../styles/Sidebar.module.css";
 import {
   LayoutDashboard,
@@ -8,7 +9,8 @@ import {
   History,
   Truck,
   Users,
-  Settings
+  Settings,
+  LogOut,
 } from "lucide-react";
 
 const SIDEBAR_ITEMS = [
@@ -39,6 +41,7 @@ const SIDEBAR_ITEMS = [
     label: "Cargar Stock",
     icon: PackagePlus,
     type: "page",
+    path: "/cargar-stock",
   },
   {
     id: "ventas",
@@ -57,6 +60,7 @@ const SIDEBAR_ITEMS = [
     label: "Proveedores",
     icon: Truck,
     type: "page",
+    path: "/proveedores",
   },
   {
     id: "administracion",
@@ -77,7 +81,7 @@ const SIDEBAR_ITEMS = [
   },
 ];
 
-export const Sidebar = () => {
+export const Sidebar = ({ onLogout }) => {
   const [activeItem, setActiveItem] = useState("dashboard");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -123,6 +127,17 @@ export const Sidebar = () => {
                   {item.label}
                 </p>
               </li>
+            ) : item.path ? (
+              <li key={item.id}>
+                <NavLink
+                  to={item.path}
+                  className={({ isActive }) => (isActive ? styles.active : "")}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <item.icon size={20} strokeWidth={2} aria-hidden="true" />
+                  <p>{item.label}</p>
+                </NavLink>
+              </li>
             ) : (
               <li key={item.id}>
                 <button
@@ -136,6 +151,14 @@ export const Sidebar = () => {
             ),
           )}
         </ul>
+        <button
+          type="button"
+          className={styles["logout-button"]}
+          onClick={onLogout}
+        >
+          <LogOut size={20} strokeWidth={2} aria-hidden="true" />
+          <p>Cerrar Sesión</p>
+        </button>
       </aside>
     </section>
   );

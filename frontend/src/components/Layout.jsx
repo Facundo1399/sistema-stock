@@ -1,10 +1,10 @@
 import { Outlet } from "react-router-dom";
 import Sidebar from "./Sidebar";
 
-function Layout() {
+function Layout({ onLogout }) {
     return (
         <div className="app-layout">
-            <Sidebar />
+            <Sidebar onLogout={onLogout} />
 
             <main className="main-content">
                 <Outlet />

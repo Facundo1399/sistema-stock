@@ -1,12 +1,14 @@
 import { useState } from "react";
-
 import styles from "../styles/Login.module.css";
+import { iniciarSesion } from "../services/CargarProductos";
 
-export function LoginForm({ className = "", ...props }) {
+export function LoginForm({ className = "", onLogin, ...props }) {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
+  const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -17,9 +19,19 @@ export function LoginForm({ className = "", ...props }) {
     }));
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    console.log("Login attempt:", formData);
+    setError("");
+    setIsSubmitting(true);
+
+    try {
+      const data = await iniciarSesion(formData.email, formData.password);
+      onLogin(data.access_token);
+    } catch (loginError) {
+      setError(loginError.message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -55,8 +67,14 @@ export function LoginForm({ className = "", ...props }) {
             />
           </label>
 
-          <button type="submit" className={styles.primaryButton}>
-            Entrar
+          {error && <p role="alert">{error}</p>}
+
+          <button
+            type="submit"
+            className={styles.primaryButton}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Ingresando..." : "Entrar"}
           </button>
 
         </form>

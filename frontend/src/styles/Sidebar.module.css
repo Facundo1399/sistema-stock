@@ -46,7 +46,8 @@
   height: 44px;
 }
 
-.sidebar-12 button {
+.sidebar-12 button,
+.sidebar-12 a {
   position: relative;
   display: flex;
   gap: 12px;
@@ -62,13 +63,23 @@
   cursor: pointer;
   color: rgb(255 255 255 / 95%);
   transition: 0.3s;
+  text-decoration: none;
 }
 
-.sidebar-12 button.active {
+.sidebar-12 button.active,
+.sidebar-12 a.active {
   background: rgb(0 0 0 / 18%);
 }
 
-.sidebar-12 button:not(.active):hover {
+.sidebar-12 .logout-button {
+  flex-shrink: 0;
+  margin-bottom: 8px;
+  border-top: 1px solid rgb(255 255 255 / 8%);
+  border-radius: 0;
+}
+
+.sidebar-12 button:not(.active):hover,
+.sidebar-12 a:not(.active):hover {
   background: rgb(0 0 0 / 8%);
 }
 
@@ -144,6 +155,10 @@
   }
 
   .sidebar-12:not(.sidebar-12--open) > ul {
+    display: none;
+  }
+
+  .sidebar-12:not(.sidebar-12--open) > .logout-button {
     display: none;
   }
 }
